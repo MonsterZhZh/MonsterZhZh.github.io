@@ -227,6 +227,15 @@ body.zh { line-height: 1.75; }
   position: sticky;
   top: 2rem;
   align-self: start;
+
+  /* On short viewports the sidebar is taller than the screen and its lower
+     entries become unreachable. Cap it to the visible height and let it
+     scroll on its own — the wheel drives it whenever the cursor is over it,
+     and `contain` stops that scroll from chaining to the page underneath. */
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
   padding: 1.75rem 1.5rem 1.5rem;
   background: var(--panel);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
@@ -235,6 +244,17 @@ body.zh { line-height: 1.75; }
   border-radius: 16px;
   box-shadow: var(--panel-shadow);
 }
+
+/* slim scrollbar, only visible while the sidebar is actually hovered */
+.sidebar { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.sidebar:hover { scrollbar-color: var(--rule) transparent; }
+.sidebar::-webkit-scrollbar { width: 7px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+.sidebar:hover::-webkit-scrollbar-thumb { background: var(--rule); }
 
 /* a hairline rail anchors the two columns and gives the gutter a purpose */
 .content {
@@ -617,7 +637,13 @@ footer {
     max-width: 52rem;
     padding: 2.75rem 2.5rem 3rem;
   }
-  .sidebar { position: static; padding: 1.5rem 1.4rem 1.35rem; }
+  /* stacked layout: the sidebar is a normal header again, so no inner scroll */
+  .sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding: 1.5rem 1.4rem 1.35rem;
+  }
   /* no side rail once the columns stack — pull the numeral inline instead */
   .content { padding-left: 0; border-left: none; }
   h2 { padding-left: 2.7rem; }

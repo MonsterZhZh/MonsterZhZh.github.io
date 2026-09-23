@@ -11,6 +11,7 @@
   --rule:      rgba(28, 32, 39, .12);
   --accent:    #1d5b8e;
   --accent-bg: rgba(29, 91, 142, .10);
+  --accent-edge: rgba(29, 91, 142, .30);
   --tag-bg:    rgba(28, 32, 39, .06);
 
   --glass:      rgba(255, 255, 255, .42);
@@ -61,6 +62,7 @@
     --rule:      rgba(231, 233, 236, .14);
     --accent:    #8ec0e8;
     --accent-bg: rgba(142, 192, 232, .14);
+    --accent-edge: rgba(142, 192, 232, .32);
     --tag-bg:    rgba(231, 233, 236, .08);
 
     --glass:      rgba(30, 34, 42, .44);
@@ -272,6 +274,22 @@ a {
 }
 a:hover { border-bottom-color: var(--accent); }
 
+/* keyboard focus had no visible indicator at all — links only changed their
+   underline, which never fires for Tab navigation */
+a:focus-visible,
+.toc a:focus-visible,
+.links a:focus-visible,
+.lang a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent-bg);
+  color: var(--fg);
+}
+
 /* ---------- language switch ---------- */
 
 .lang {
@@ -307,6 +325,13 @@ a:hover { border-bottom-color: var(--accent); }
   box-shadow:
       0 2px 4px rgba(24, 44, 74, .10),
       0 10px 26px rgba(24, 44, 74, .22);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.portrait:hover {
+  transform: translateY(-2px);
+  box-shadow:
+      0 4px 8px rgba(24, 44, 74, .12),
+      0 16px 34px rgba(24, 44, 74, .26);
 }
 
 h1 {
@@ -393,10 +418,15 @@ h1 {
 }
 
 /* set by the scroll handler: marks the section currently in view */
+.toc a {
+  border-left: 2px solid transparent;
+  transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
 .toc a.on {
   color: var(--accent);
   font-weight: 700;
   background: var(--accent-bg);
+  border-left-color: var(--accent);
 }
 .toc a.on::before { opacity: 1; }
 
@@ -404,6 +434,9 @@ h1 {
 
 section { margin-bottom: 2.75rem; }
 section:last-of-type { margin-bottom: 1.5rem; }
+
+/* anchor jumps used to land the heading flush against the viewport edge */
+section[id] { scroll-margin-top: 2.5rem; }
 
 /* section headings carry an index numeral set into the left margin, and a
    rule that fades out to the right — editorial, but still quiet */
@@ -438,11 +471,26 @@ h2::before {
   opacity: .55;
 }
 
+/* sub-headings get a short accent tick so they read as a tier below h2
+   without needing another rule across the column */
 h3 {
+  position: relative;
   font-size: var(--t-sub);
   font-weight: 700;
   color: var(--muted);
   margin: 1.9rem 0 .9rem;
+  padding-left: .85rem;
+}
+h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .38em;
+  width: 3px;
+  height: .95em;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: .5;
 }
 
 p { margin: 0 0 1rem; font-size: var(--t-body); }
@@ -512,7 +560,11 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
   color: var(--faint);
   padding-top: .3em;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;   /* years line up column-wise */
+  transition: color .2s ease;
 }
+/* the hovered row's year picks up the accent, tying it to the left bar */
+.entry:hover .when { color: var(--accent); }
 
 .title {
   font-size: var(--t-body);
@@ -527,6 +579,10 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
 
 .tag {
   display: inline-block;
+  /* fixed box so the venue names after the tags all start on one line,
+     instead of stepping in and out with each tag's width */
+  min-width: 4.6rem;
+  text-align: center;
   font-size: var(--t-micro);
   font-weight: 700;
   letter-spacing: .06em;
@@ -553,9 +609,38 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
   .honor { background: rgba(214, 168, 74, .16); color: #d9b168; }
 }
 
-.res { font-size: var(--t-small); margin-left: .45rem; }
-.res a { color: var(--faint); }
-.res a:hover { color: var(--accent); }
+/* resource links read as actionable chips rather than grey afterthoughts */
+.res {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-left: .55rem;
+  vertical-align: 1px;
+  font-size: var(--t-small);
+}
+
+.res a {
+  display: inline-flex;
+  align-items: center;
+  padding: .08rem .55rem;
+  border: 1px solid var(--accent-edge);
+  border-radius: 100px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
+  transition: background-color .16s ease, color .16s ease,
+              border-color .16s ease, transform .16s ease;
+}
+
+.res a:hover,
+.res a:focus-visible {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--base1);          /* flips light/dark automatically */
+  transform: translateY(-1px);
+}
 
 /* inline brand marks sit on the text baseline and inherit its colour */
 .ico {
@@ -688,6 +773,7 @@ footer {
     --fg: #000; --muted: #333; --faint: #555;
     --rule: #ccc; --accent: #000;
     --accent-bg: #eee; --tag-bg: #eee;
+    --accent-edge: #aaa;
   }
   body { background: #fff; }
   .links, .lang, .toc { display: none; }

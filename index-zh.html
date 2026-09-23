@@ -58,9 +58,9 @@
 <section id="research">
   <h2>研究方向</h2>
   <ul class="interests">
-    <li><b>计算机视觉</b>——多粒度视觉语义结构先验建模</li>
-    <li><b>空天信息处理</b>——目标检测、语义分割、变化检测</li>
-    <li><b>机器学习</b>——深度学习、字典学习、多模态表征学习</li>
+    <li><b>计算机视觉</b><span>多粒度视觉语义结构先验建模</span><span>多模态表征学习</span></li>
+    <li><b>空天信息处理</b><span>目标检测、语义分割、变化检测</span></li>
+    <li><b>机器学习</b><span>深度学习、字典学习</span></li>
   </ul>
 </section>
 
@@ -463,10 +463,13 @@
 
 <footer>
   <span>陈璟洲 &middot; 南京理工大学</span>
+  <span class="updated" hidden>最后更新 <time></time></span>
 </footer>
 
 </main>
 </div>
+
+<a class="to-top" href="#" aria-label="回到顶部" title="回到顶部"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></a>
 
 <script>
 /* Highlight the sidebar entry for whichever section is currently in view. */
@@ -503,10 +506,28 @@
     if (!queued) { queued = true; requestAnimationFrame(update); }
   }
 
-  addEventListener('scroll', onScroll, { passive: true });
+  var toTop = document.querySelector('.to-top');
+  function onScrollAll() {
+    onScroll();
+    if (toTop) toTop.classList.toggle('show', window.scrollY > window.innerHeight * 0.8);
+  }
+  addEventListener('scroll', onScrollAll, { passive: true });
   addEventListener('resize', onScroll);
   addEventListener('load', onScroll);   /* re-measure once images have sized */
   update();
+  onScrollAll();
+
+  /* Footer stamp from the Last-Modified the server sent. Browsers report
+     the current time when the header is missing, so only show it when
+     the value is clearly older than this page load. */
+  var stamp = document.querySelector('.updated');
+  var mod = new Date(document.lastModified);
+  if (stamp && !isNaN(mod) && Date.now() - mod.getTime() > 60000) {
+    stamp.querySelector('time').dateTime = mod.toISOString().slice(0, 10);
+    stamp.querySelector('time').textContent = mod.toLocaleDateString('zh-CN',
+      { year: 'numeric', month: 'long', day: 'numeric' });
+    stamp.hidden = false;
+  }
 })();
 </script>
 </body>

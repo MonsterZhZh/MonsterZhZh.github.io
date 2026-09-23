@@ -60,9 +60,9 @@
 <section id="research">
   <h2>Research Interests</h2>
   <ul class="interests">
-    <li><b>Computer Vision</b> — prior modelling of multi-granularity visual semantic structures</li>
-    <li><b>Aerospace Information Processing</b> — object detection, semantic segmentation, change detection</li>
-    <li><b>Machine Learning</b> — deep learning, dictionary learning, multi-modal representation learning</li>
+    <li><b>Computer Vision</b><span>prior modelling of multi-granularity visual semantic structures</span><span>multi-modal representation learning</span></li>
+    <li><b>Aerospace Information Processing</b><span>object detection, semantic segmentation, change detection</span></li>
+    <li><b>Machine Learning</b><span>deep learning, dictionary learning</span></li>
   </ul>
 </section>
 
@@ -465,10 +465,13 @@
 
 <footer>
   <span>Jingzhou Chen &middot; Nanjing University of Science and Technology</span>
+  <span class="updated" hidden>Last updated <time></time></span>
 </footer>
 
 </main>
 </div>
+
+<a class="to-top" href="#" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></a>
 
 <script>
 /* Highlight the sidebar entry for whichever section is currently in view. */
@@ -505,10 +508,28 @@
     if (!queued) { queued = true; requestAnimationFrame(update); }
   }
 
-  addEventListener('scroll', onScroll, { passive: true });
+  var toTop = document.querySelector('.to-top');
+  function onScrollAll() {
+    onScroll();
+    if (toTop) toTop.classList.toggle('show', window.scrollY > window.innerHeight * 0.8);
+  }
+  addEventListener('scroll', onScrollAll, { passive: true });
   addEventListener('resize', onScroll);
   addEventListener('load', onScroll);   /* re-measure once images have sized */
   update();
+  onScrollAll();
+
+  /* Footer stamp from the Last-Modified the server sent. Browsers report
+     the current time when the header is missing, so only show it when
+     the value is clearly older than this page load. */
+  var stamp = document.querySelector('.updated');
+  var mod = new Date(document.lastModified);
+  if (stamp && !isNaN(mod) && Date.now() - mod.getTime() > 60000) {
+    stamp.querySelector('time').dateTime = mod.toISOString().slice(0, 10);
+    stamp.querySelector('time').textContent = mod.toLocaleDateString('en-GB',
+      { year: 'numeric', month: 'long', day: 'numeric' });
+    stamp.hidden = false;
+  }
 })();
 </script>
 </body>

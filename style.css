@@ -33,6 +33,25 @@
   --base1: #f2f6fb;
   --base2: #e6ebf4;
 
+  /* section cards: translucent glass — gradient fill, bright rim, inner bevel */
+  --card-bg: linear-gradient(155deg, rgba(255, 255, 255, .52) 0%, rgba(255, 255, 255, .16) 100%);
+  --card-edge: rgba(255, 255, 255, .78);
+  --card-shadow:
+      0 2px 6px rgba(24, 44, 74, .05),
+      0 14px 34px rgba(24, 44, 74, .09),
+      inset 0 1px 0 rgba(255, 255, 255, .95),
+      inset 0 0 0 1px rgba(255, 255, 255, .22),
+      inset 0 -1px 0 rgba(24, 44, 74, .05);
+  /* tiles inside a card: one tier fainter, same neutral glass */
+  --card-shadow-lift:
+      0 4px 10px rgba(24, 44, 74, .07),
+      0 26px 52px rgba(24, 44, 74, .16),
+      inset 0 1px 0 rgba(255, 255, 255, .95),
+      inset 0 0 0 1px rgba(255, 255, 255, .22),
+      inset 0 -1px 0 rgba(24, 44, 74, .05);
+  --tile-bg: rgba(236, 241, 248, .62);
+  --tile-edge: rgba(28, 32, 39, .08);
+
   /* recruiting notice — deliberately off the page's blue-grey palette */
   --notice-bg:     rgba(214, 158, 46, .13);
   --notice-edge:   rgba(178, 130, 30, .30);
@@ -83,6 +102,21 @@
     --base1: #101319;
     --base2: #0a0c10;
 
+    --card-bg: linear-gradient(155deg, rgba(255, 255, 255, .075) 0%, rgba(255, 255, 255, .02) 100%);
+    --card-edge: rgba(255, 255, 255, .12);
+    --card-shadow:
+        0 2px 6px rgba(0, 0, 0, .25),
+        0 14px 34px rgba(0, 0, 0, .32),
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        inset 0 -1px 0 rgba(0, 0, 0, .25);
+    --card-shadow-lift:
+        0 4px 10px rgba(0, 0, 0, .30),
+        0 26px 52px rgba(0, 0, 0, .50),
+        inset 0 1px 0 rgba(255, 255, 255, .16),
+        inset 0 -1px 0 rgba(0, 0, 0, .25);
+    --tile-bg: rgba(255, 255, 255, .055);
+    --tile-edge: rgba(255, 255, 255, .11);
+
     --notice-bg:     rgba(214, 168, 74, .13);
     --notice-edge:   rgba(214, 168, 74, .27);
     --notice-accent: #d9b168;
@@ -126,7 +160,7 @@ body.zh { line-height: 1.75; }
 
   display: grid;
   grid-template-columns: 21rem 1fr;
-  gap: 4rem;
+  gap: 3.25rem;
   align-items: start;
 
   position: relative;
@@ -182,7 +216,8 @@ body.zh { line-height: 1.75; }
 
 /* if the browser cannot blur, lean on opacity so text stays readable */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :root { --glass: rgba(255, 255, 255, .90); --panel: rgba(255, 255, 255, .72); }
+  :root { --glass: rgba(255, 255, 255, .90); --panel: rgba(255, 255, 255, .72);
+          --card-bg: rgba(255, 255, 255, .82); }
   @media (prefers-color-scheme: dark) {
     :root { --glass: rgba(26, 29, 35, .93); --panel: rgba(255, 255, 255, .07); }
   }
@@ -261,8 +296,6 @@ body.zh { line-height: 1.75; }
 /* a hairline rail anchors the two columns and gives the gutter a purpose */
 .content {
   min-width: 0;
-  padding-left: 4rem;
-  border-left: 1px solid var(--rule);
   counter-reset: sec;
 }
 
@@ -432,8 +465,24 @@ h1 {
 
 /* ---------- sections ---------- */
 
-section { margin-bottom: 2.75rem; }
-section:last-of-type { margin-bottom: 1.5rem; }
+/* each top-level section is its own card: the card boundary marks the
+   biggest unit of structure, so the tiers inside can stay light */
+section {
+  margin-bottom: 1.6rem;
+  padding: 1.9rem 1.9rem 1.7rem;
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--card-edge);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow);
+  transition: transform .28s cubic-bezier(.2, .7, .3, 1),
+              box-shadow .28s ease, border-color .28s ease;
+}
+section:last-of-type { margin-bottom: 1.6rem; }
+section > :last-child,
+section .list > li:last-child,
+section > .inline:last-child > li:last-child { margin-bottom: 0; }
 
 /* anchor jumps used to land the heading flush against the viewport edge */
 section[id] { scroll-margin-top: 2.5rem; }
@@ -451,19 +500,18 @@ h2 {
   padding-bottom: .55rem;
   margin: 0 0 1.4rem;
   border-bottom: none;
-  background-image: linear-gradient(to right, var(--accent) 0 3.5rem, var(--rule) 3.5rem 55%, transparent 100%);
+  background-image: linear-gradient(to right, var(--accent) 0 3.5rem, var(--rule) 3.5rem 70%, transparent 100%);
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 100% 2px;
 }
 
+h2 { padding-left: 2.6rem; }
 h2::before {
   content: counter(sec, decimal-leading-zero);
   position: absolute;
-  left: -4rem;
+  left: 0;
   top: .18em;
-  width: 2rem;
-  text-align: right;
   font-size: var(--t-small);
   font-weight: 700;
   letter-spacing: .04em;
@@ -501,21 +549,72 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
 
 /* ---------- research interests ---------- */
 
-.interests { list-style: none; margin: 0; padding: 0; font-size: var(--t-body); }
-.interests li {
-  padding-left: 1.15rem;
-  position: relative;
-  margin-bottom: .6rem;
+/* research areas: tiles one tier below the section card — tinted, no shadow */
+.interests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .9rem;
 }
-.interests li::before {
+.interests li {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding: 1.05rem 1.2rem 1.15rem;
+  background: var(--tile-bg);
+  border: 1px solid var(--tile-edge);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(24, 44, 74, .05), inset 0 1px 0 rgba(255, 255, 255, .7);
+  transition: transform .22s cubic-bezier(.2, .7, .3, 1), box-shadow .22s ease,
+              border-color .2s ease, background-color .2s ease;
+}
+.interests li:hover { border-color: var(--accent-edge); }
+
+@media (hover: hover) {
+  section:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow-lift);
+    border-color: var(--accent-edge);
+  }
+  /* sub-items rise a little less than their card, so the tiers still read */
+  .entry:hover, .inline li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(24, 44, 74, .11), inset 0 1px 0 rgba(255, 255, 255, .55);
+  }
+  .interests li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(24, 44, 74, .12), inset 0 1px 0 rgba(255, 255, 255, .7);
+  }
+}
+@media (hover: hover) and (prefers-color-scheme: dark) {
+  .entry:hover, .inline li:hover { box-shadow: 0 8px 20px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .06); }
+  .interests li:hover { box-shadow: 0 10px 22px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .06); }
+}
+/* respect reduced motion: keep the shadow cue, drop the movement */
+@media (prefers-reduced-motion: reduce) {
+  section:hover, .interests li:hover, .entry:hover, .inline li:hover { transform: none; }
+}
+@media (prefers-color-scheme: dark) {
+  .interests li { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+}
+.interests b { font-size: var(--t-body); font-weight: 700; margin-bottom: .15rem; }
+.interests span { font-size: var(--t-meta); color: var(--muted); line-height: 1.55; }
+/* each topic gets its own marker, so a wrapped line is never mistaken for
+   the start of the next topic */
+.interests span { position: relative; padding-left: .9rem; }
+.interests span::before {
   content: "";
   position: absolute;
-  left: 0; top: .68em;
-  width: 6px; height: 6px;
+  left: 0;
+  top: .68em;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--accent);
+  opacity: .6;
 }
-.interests b { font-weight: 700; }
 
 /* ---------- two-column entries ---------- */
 
@@ -523,33 +622,20 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
 
 .entry {
   display: grid;
-  grid-template-columns: 5rem 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 4rem 1fr;
+  gap: 1.25rem;
   margin-bottom: 1.55rem;
   padding: .35rem .75rem .35rem 0;
   margin-left: -.75rem;
   padding-left: .75rem;
   border-radius: 6px;
   border-left: 2px solid transparent;
-  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+  transition: transform .22s cubic-bezier(.2, .7, .3, 1), background-color .2s ease,
+              border-color .2s ease, box-shadow .22s ease;
 }
 .entry:hover {
-  background: var(--panel);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-  backdrop-filter: blur(10px) saturate(140%);
+  background: var(--accent-bg);
   border-left-color: var(--accent);
-  box-shadow:
-      0 2px 6px rgba(24, 44, 74, .07),
-      0 10px 24px rgba(24, 44, 74, .09),
-      inset 0 1px 0 rgba(255, 255, 255, .6);
-}
-@media (prefers-color-scheme: dark) {
-  .entry:hover {
-    box-shadow:
-        0 2px 6px rgba(0, 0, 0, .3),
-        0 10px 24px rgba(0, 0, 0, .35),
-        inset 0 1px 0 rgba(255, 255, 255, .08);
-  }
 }
 
 /* date ranges ("2022.04 – 2023.06") need a wider gutter than bare years */
@@ -610,18 +696,15 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
 }
 
 /* resource links read as actionable chips rather than grey afterthoughts */
-.res {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: .4rem;
-  margin-left: .55rem;
-  vertical-align: 1px;
-  font-size: var(--t-small);
-}
+/* chips flow inline with the venue text, so they follow the venue name
+   directly instead of the whole group dropping to a line of its own */
+.res { display: inline; white-space: nowrap; font-size: var(--t-small); }  /* PDF + code travel together */
 
 .res a {
   display: inline-flex;
   align-items: center;
+  margin-left: .4rem;
+  vertical-align: 1px;
   padding: .08rem .55rem;
   border: 1px solid var(--accent-edge);
   border-radius: 100px;
@@ -679,14 +762,20 @@ p { margin: 0 0 1rem; font-size: var(--t-body); }
 
 .inline { list-style: none; margin: 0; padding: 0; font-size: var(--t-meta); }
 .inline li {
-  margin-bottom: .48rem;
-  padding-left: 1.1rem;
+  margin-bottom: .3rem;
+  margin-left: -.6rem;
+  padding: .22rem .6rem .22rem 1.7rem;
   position: relative;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: transform .22s cubic-bezier(.2, .7, .3, 1), background-color .2s ease,
+              border-color .2s ease, box-shadow .22s ease;
 }
+.inline li:hover { background: var(--accent-bg); border-color: var(--accent-edge); }
 .inline li::before {
   content: "·";
   position: absolute;
-  left: .3rem;
+  left: .9rem;
   color: var(--faint);
 }
 
@@ -711,11 +800,45 @@ footer {
   flex-wrap: wrap;
   gap: .6rem;
 }
+footer .updated { font-variant-numeric: tabular-nums; }
+
+/* ---------- back to top ---------- */
+
+.to-top {
+  position: fixed;
+  right: 1.75rem;
+  bottom: 1.75rem;
+  z-index: 10;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--panel-edge);
+  background: var(--panel);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: var(--panel-shadow);
+  color: var(--accent);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity .2s ease, transform .2s ease, visibility .2s,
+              background-color .16s ease, color .16s ease;
+}
+.to-top.show { opacity: 1; visibility: visible; transform: none; }
+.to-top:hover {
+  border-bottom-color: var(--panel-edge);
+  background: var(--accent);
+  color: var(--base1);
+}
+.to-top svg { width: 1.25rem; height: 1.25rem; }
 
 /* ---------- responsive ---------- */
 
 /* below the two-column threshold the sidebar becomes a normal header */
 @media (max-width: 64rem) {
+  .interests { grid-template-columns: 1fr; gap: .7rem; }
   .wrap {
     grid-template-columns: 1fr;
     gap: 2.5rem;
@@ -730,9 +853,6 @@ footer {
     padding: 1.5rem 1.4rem 1.35rem;
   }
   /* no side rail once the columns stack — pull the numeral inline instead */
-  .content { padding-left: 0; border-left: none; }
-  h2 { padding-left: 2.7rem; }
-  h2::before { left: 0; width: auto; text-align: left; }
   .portrait {
     max-width: 150px;
     float: left;
@@ -764,6 +884,7 @@ footer {
     gap: .15rem;
   }
   .when { padding-top: 0; }
+  section { padding: 1.35rem 1.1rem 1.2rem; border-radius: 14px; }
 }
 
 /* ---------- print ---------- */
@@ -776,7 +897,7 @@ footer {
     --accent-edge: #aaa;
   }
   body { background: #fff; }
-  .links, .lang, .toc { display: none; }
+  .links, .lang, .toc, .to-top { display: none; }
   .wrap {
     display: block;
     max-width: none;
@@ -803,5 +924,11 @@ footer {
   .entry { margin-left: 0; padding-left: 0; border-left: none; background: none; }
   .portrait { max-width: 110px; float: left; margin: 0 1.2rem .5rem 0; }
   a { border-bottom: none; }
-  section { break-inside: avoid; }
+  section {
+    break-inside: avoid;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
 }
